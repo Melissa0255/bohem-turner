@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estrella de Boehm-Turner | Análisis de Enfoque</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Análisis de Enfoque de Desarrollo</h1>
+            <h2>Estrella de Boehm-Turner</h2>
+        </header>
+
+        <div class="card intro">
+            <h3>¿Qué es la Estrella de Boehm-Turner?</h3>
+            <p>La Estrella de Boehm-Turner es una herramienta que permite evaluar qué enfoque de desarrollo 
+               es más adecuado para un proyecto específico: <strong>Ágil</strong> o <strong>Prescriptivo (Plan-driven)</strong>.
+               Se basa en cinco dimensiones clave que determinan la compatibilidad del proyecto con cada enfoque.</p>
+            <button id="startBtn" class="btn primary">Comenzar análisis</button>
+        </div>
+
+        <div id="formSection" class="card form-section hidden">
+            <h3>Ingrese los valores para cada dimensión</h3>
+            <p class="instructions">Califique cada dimensión en una escala del 1 al 5, donde 1 favorece enfoques ágiles y 5 favorece enfoques prescriptivos.</p>
+            
+            <form id="bohmTurnerForm">
+                <div class="form-group">
+                    <label for="personnel">
+                        <strong>Personal (Nivel de habilidad)</strong>
+                        <span class="tooltip" title="1 = Equipo altamente calificado, 5 = Equipo con poca experiencia">?</span>
+                    </label>
+                    <div class="slider-container">
+                        <span class="label">Ágil (Alto nivel)</span>
+                        <input type="range" id="personnel" name="personnel" min="1" max="5" step="0.5" value="3">
+                        <span class="label">Prescriptivo (Bajo nivel)</span>
+                        <span class="value">3</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="dynamism">
+                        <strong>Dinamismo (Cambios en requisitos)</strong>
+                        <span class="tooltip" title="1 = Requisitos altamente cambiantes, 5 = Requisitos estables">?</span>
+                    </label>
+                    <div class="slider-container">
+                        <span class="label">Ágil (Alta)</span>
+                        <input type="range" id="dynamism" name="dynamism" min="1" max="5" step="0.5" value="3">
+                        <span class="label">Prescriptivo (Baja)</span>
+                        <span class="value">3</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="culture">
+                        <strong>Cultura (Actitud hacia el caos vs orden)</strong>
+                        <span class="tooltip" title="1 = Cultura que prospera en la flexibilidad, 5 = Cultura que valora el orden y la planificación">?</span>
+                    </label>
+                    <div class="slider-container">
+                        <span class="label">Ágil (Flexibilidad)</span>
+                        <input type="range" id="culture" name="culture" min="1" max="5" step="0.5" value="3">
+                        <span class="label">Prescriptivo (Orden)</span>
+                        <span class="value">3</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="size">
+                        <strong>Tamaño del equipo</strong>
+                        <span class="tooltip" title="1 = Equipo pequeño, 5 = Equipo grande">?</span>
+                    </label>
+                    <div class="slider-container">
+                        <span class="label">Ágil (Pequeño)</span>
+                        <input type="range" id="size" name="size" min="1" max="5" step="0.5" value="3">
+                        <span class="label">Prescriptivo (Grande)</span>
+                        <span class="value">3</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="criticality">
+                        <strong>Criticidad (Impacto de defectos)</strong>
+                        <span class="tooltip" title="1 = Bajo impacto de defectos, 5 = Alto impacto, puede afectar vidas">?</span>
+                    </label>
+                    <div class="slider-container">
+                        <span class="label">Ágil (Baja)</span>
+                        <input type="range" id="criticality" name="criticality" min="1" max="5" step="0.5" value="3">
+                        <span class="label">Prescriptivo (Alta)</span>
+                        <span class="value">3</span>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" id="resetBtn" class="btn secondary">Reiniciar</button>
+                    <button type="submit" class="btn primary">Analizar resultados</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="resultSection" class="card result-section hidden">
+            <h3>Resultados del Análisis</h3>
+            <div class="results-container">
+                <div class="chart-container">
+                    <canvas id="starChart"></canvas>
+                </div>
+                <div class="result-summary">
+                    <h4>Enfoque recomendado: <span id="recommendedApproach">Calculando...</span></h4>
+                    <div class="score-container">
+                        <div class="score">
+                            <span class="label">Puntaje Ágil:</span>
+                            <span id="agileScore" class="value">-</span>
+                        </div>
+                        <div class="score">
+                            <span class="label">Puntaje Prescriptivo:</span>
+                            <span id="prescriptiveScore" class="value">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="agile-info">Enfoque Ágil</button>
+                <button class="tab-btn" data-tab="prescriptive-info">Enfoque Prescriptivo</button>
+                <button class="tab-btn" data-tab="comparison">Comparación</button>
+            </div>
+
+            <div id="agile-info" class="tab-content active">
+                <h4>Metodologías Ágiles</h4>
+                <p>Las metodologías ágiles son enfoques de desarrollo que enfatizan:</p>
+                <ul>
+                    <li><strong>Individuos e interacciones</strong> sobre procesos y herramientas</li>
+                    <li><strong>Software funcional</strong> sobre documentación exhaustiva</li>
+                    <li><strong>Colaboración con el cliente</strong> sobre negociación contractual</li>
+                    <li><strong>Respuesta al cambio</strong> sobre seguir un plan</li>
+                </ul>
+                <h5>Metodologías Ágiles Comunes:</h5>
+                <div class="methodology-cards">
+                    <div class="methodology-card">
+                        <h6>Scrum</h6>
+                        <p>Marco de trabajo iterativo que organiza el trabajo en sprints de 2-4 semanas. Incluye roles como Scrum Master, Product Owner y equipo de desarrollo.</p>
+                    </div>
+                    <div class="methodology-card">
+                        <h6>Kanban</h6>
+                        <p>Sistema visual que limita el trabajo en progreso y optimiza el flujo de trabajo, mostrando tareas en columnas según su estado.</p>
+                    </div>
+                    <div class="methodology-card">
+                        <h6>XP (Extreme Programming)</h6>
+                        <p>Enfatiza prácticas como programación en parejas, propiedad colectiva del código, pruebas automatizadas e integración continua.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="prescriptive-info" class="tab-content">
+                <h4>Metodologías Prescriptivas (Plan-Driven)</h4>
+                <p>Las metodologías prescriptivas se basan en la planificación detallada y documentación rigurosa:</p>
+                <ul>
+                    <li><strong>Planificación exhaustiva</strong> de todas las fases del desarrollo</li>
+                    <li><strong>Documentación detallada</strong> de requisitos y especificaciones</li>
+                    <li><strong>Procesos formales</strong> para control de cambios</li>
+                    <li><strong>Separación de fases</strong> como análisis, diseño, codificación, pruebas</li>
+                </ul>
+                <h5>Metodologías Prescriptivas Comunes:</h5>
+                <div class="methodology-cards">
+                    <div class="methodology-card">
+                        <h6>Cascada (Waterfall)</h6>
+                        <p>Secuencial, con fases bien definidas que se completan antes de avanzar a la siguiente. Requiere documentación detallada en cada fase.</p>
+                    </div>
+                    <div class="methodology-card">
+                        <h6>RUP (Rational Unified Process)</h6>
+                        <p>Basado en iteraciones pero con documentación formal y enfoque en arquitectura. Organiza el trabajo en cuatro fases principales.</p>
+                    </div>
+                    <div class="methodology-card">
+                        <h6>CMMI (Capability Maturity Model Integration)</h6>
+                        <p>Marco para mejorar procesos con niveles de madurez definidos y prácticas específicas para cada nivel.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="comparison" class="tab-content">
+                <h4>Comparación de Enfoques</h4>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Dimensión</th>
+                            <th>Enfoque Ágil</th>
+                            <th>Enfoque Prescriptivo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Personal</td>
+                            <td>Requiere personal calificado y autodidacta</td>
+                            <td>Funciona con equipos de habilidades mixtas</td>
+                        </tr>
+                        <tr>
+                            <td>Dinamismo</td>
+                            <td>Ideal para requisitos cambiantes</td>
+                            <td>Mejor para requisitos estables</td>
+                        </tr>
+                        <tr>
+                            <td>Cultura</td>
+                            <td>Prospera en flexibilidad y adaptabilidad</td>
+                            <td>Prefiere orden y procesos documentados</td>
+                        </tr>
+                        <tr>
+                            <td>Tamaño</td>
+                            <td>Más eficaz con equipos pequeños</td>
+                            <td>Escalable a equipos grandes</td>
+                        </tr>
+                        <tr>
+                            <td>Criticidad</td>
+                            <td>Adecuado para sistemas no críticos</td>
+                            <td>Preferible para sistemas de alta criticidad</td>
+                        </tr>
+                        <tr>
+                            <td>Documentación</td>
+                            <td>Mínima, enfocada en código y comunicación</td>
+                            <td>Exhaustiva, formal y detallada</td>
+                        </tr>
+                        <tr>
+                            <td>Participación del cliente</td>
+                            <td>Continua y colaborativa</td>
+                            <td>Principalmente al inicio y final</td>
+                        </tr>
+                        <tr>
+                            <td>Entrega</td>
+                            <td>Iterativa, con incrementos frecuentes</td>
+                            <td>Al final del proyecto o en etapas mayores</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="button-group">
+                <button type="button" id="backBtn" class="btn secondary">Volver al formulario</button>
+                <button type="button" id="newAnalysisBtn" class="btn primary">Nuevo análisis</button>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2025 Análisis de Estrella de Boehm-Turner | Desarrollado para evaluar enfoques de desarrollo de software</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
